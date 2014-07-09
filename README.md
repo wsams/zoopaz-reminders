@@ -31,4 +31,6 @@ If you use a carrier email to text address you can send text messages easily. He
 Screenshot
 ==========
 
-<a href="img/zoopaz-reminders.png"><img style="max-width:100%;" src="img/zoopaz-reminders.png" alt="zoopaz-reminders.png" /></a>
+Click thumbnail for full-size screenshot.
+
+<a target="_blank" href="img/zoopaz-reminders.png"><img style="max-width:100%;" src="img/small.zoopaz-reminders.png" alt="zoopaz-reminders.png" /></a>
