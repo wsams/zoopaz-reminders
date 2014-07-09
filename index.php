@@ -32,15 +32,28 @@ if ($_GET['a'] == "remind") {
     exit();
 }
 
+if ($_GET['a'] == "remove") {
+    exec("sudo atrm " . intval($_GET['atid']));
+    header("Location:{$_SERVER['PHP_SELF']}");
+    exit();
+}
+
 $curdate = date("Y-m-d");
 $curtime = date("H:i", strtotime("+1 hour")) . ":AM/PM";
 
 $out = "";
 if (isset($_SESSION['msg'])) {
     $out = <<<eof
+<h4>Last job submitted</h4>
 <div style="overflow:auto;" class="alert alert-success" role="alert">{$_SESSION['msg']}</div>
 eof;
 }
+
+ob_start();
+system("sudo atq");
+$c = ob_get_contents();
+ob_end_clean();
+$queue = "<pre class='alert alert-info'>" . $c . "</pre>";
 
 $html = <<<eof
 <!DOCTYPE html>
@@ -76,6 +89,16 @@ $html = <<<eof
             </form>
             <br />
             {$out}
+            <h4>Job Queue</h4>
+            {$queue}
+            <form role="form" method="get" action="{$_SERVER['PHP_SELF']}">
+                <h4>Remove Job</h4>
+                <input type="hidden" name="a" value="remove" />
+                <div class="form-group">
+                    <input type="text" class="form-control" id="atid" name="atid" placeholder="Enter job ID" />
+                </div>
+                <button type="submit" class="btn btn-primary">Remove</button>
+            </form>
         </div>
         <script src="cdn/js/jquery/1.10.2/jquery-1.10.2.min.js"></script>
         <script src="cdn/js/bootstrap/3.0.0/js/bootstrap.min.js"></script>

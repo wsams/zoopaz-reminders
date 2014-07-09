@@ -9,9 +9,11 @@ Setup
 1
 -
 
-Add a similar line to `/etc/sudoers` so that your webserver user can execute the `at` command.
+Add similar lines to `/etc/sudoers` so that your webserver user can execute the `at`, `atq` and `atrm` commands.
 
     ALL ALL=NOPASSWD: /usr/bin/at
+    ALL ALL=NOPASSWD: /usr/bin/atq
+    ALL ALL=NOPASSWD: /usr/bin/atrm
 
 2
 -
