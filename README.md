@@ -18,7 +18,7 @@ Add a similar line to `/etc/sudoers` so that your webserver user can execute the
 
 Copy `example.config.php` to `config.php`.
 
-1. Add all of the email address for which you want to receive notifications to the `$emails` variable.
+1. Add all of the email address for which you want to receive notifications to the `$emails` array.
 
 2. Update `$timezone` to one of the accepted values at [http://us3.php.net/manual/en/timezones.php](http://us3.php.net/manual/en/timezones.php).
 
