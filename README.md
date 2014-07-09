@@ -27,3 +27,8 @@ Copy `example.config.php` to `config.php`.
 If you use a carrier email to text address you can send text messages easily. Here's a large list of carriers and the format.
 
 [http://www.emailtextmessages.com/](http://www.emailtextmessages.com/)
+
+Screenshot
+==========
+
+<a href="img/zoopaz-reminders.png"><img style="max-width:100%;" src="img/zoopaz-reminders.png" alt="zoopaz-reminders.png" /></a>
