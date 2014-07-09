@@ -6,15 +6,21 @@ A simple webapp that interfaces with the UNIX at command to send simple email no
 Setup
 =====
 
-Add a similar line to /etc/sudoers so that your webserver user can execute the `at` command.
+1
+-
+
+Add a similar line to `/etc/sudoers` so that your webserver user can execute the `at` command.
 
     ALL ALL=NOPASSWD: /usr/bin/at
 
+2
+-
+
 Copy `example.config.php` to `config.php`.
 
-Add all of the email address for which you want to receive notifications to the `$emails` variable.
+1. Add all of the email address for which you want to receive notifications to the `$emails` variable.
 
-Update `$timezone` to one of the accepted values at [http://us3.php.net/manual/en/timezones.php](http://us3.php.net/manual/en/timezones.php).
+2. Update `$timezone` to one of the accepted values at [http://us3.php.net/manual/en/timezones.php](http://us3.php.net/manual/en/timezones.php).
 
 If you use a carrier email to text address you can send text messages easily. Here's a large list of carriers and the format.
 
