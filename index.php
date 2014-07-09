@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-date_default_timezone_set("America/Indianapolis"); 
+date_default_timezone_set($timezone);
 
 if (file_exists("config.php")) {
     require_once("config.php");
