@@ -90,6 +90,7 @@ $html = <<<eof
             <br />
             {$out}
             <h4>Job Queue</h4>
+            <p>Job ID is the integer in the first column below.</p>
             {$queue}
             <form role="form" method="get" action="{$_SERVER['PHP_SELF']}">
                 <h4>Remove Job</h4>
