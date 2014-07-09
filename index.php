@@ -22,7 +22,7 @@ if ($_GET['a'] == "remind") {
     // sudo at 16:57 7/9/2014 -f test.sh
     $rand = sha1(microtime() . date("U") . time() . $date . $time);
     foreach ($emails as $email) {
-        file_put_contents("jobs/{$rand}", "echo \"{$message}\" | mail -a \"From: t@i.me\" -s \"reminder\" {$email}", FILE_APPEND);
+        file_put_contents("jobs/{$rand}", "echo \"{$message}\" | mail -a \"From: t@i.me\" -s \"reminder\" {$email}\n", FILE_APPEND);
     }
     exec("sudo at {$time} {$date} -f jobs/{$rand}");
     $cmd = "sudo at {$time} {$date} -f jobs/{$rand}";
