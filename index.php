@@ -50,6 +50,7 @@ eof;
 }
 
 // start: Builds queue list for UI
+$jobIDs = array();
 ob_start();
 system("sudo atq");
 $c = ob_get_contents();
@@ -59,6 +60,7 @@ $ca = explode("\n", $c);
 foreach ($ca as $k=>$l) {
     $jobId = trim(preg_replace("/^([0-9]*)\s*.*$/", "\${1}", $l));
     if (intval($jobId) > 0) {
+        $jobIDs[] = $jobId;
         ob_start();
         system("sudo at -c {$jobId}");
         $jobCMD = ob_get_contents();
@@ -80,6 +82,11 @@ foreach ($ca as $k=>$l) {
 }
 $queue .= "</pre>";
 // end: Builds queue list for UI
+
+$options = "";
+foreach ($jobIDs as $id) {
+    $options .= "<option value=\"{$id}\">{$id}</option>";
+}
 
 $html = <<<eof
 <!DOCTYPE html>
@@ -123,7 +130,9 @@ $html = <<<eof
                 <h4>Remove Job</h4>
                 <input type="hidden" name="a" value="remove" />
                 <div class="form-group">
-                    <input type="text" class="form-control" id="atid" name="atid" placeholder="Enter job ID" />
+                    <select id="atid" name="atid" class="form-control">
+                        {$options}
+                    </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Remove</button>
             </form>
