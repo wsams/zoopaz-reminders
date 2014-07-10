@@ -49,11 +49,37 @@ if (isset($_SESSION['msg'])) {
 eof;
 }
 
+// start: Builds queue list for UI
 ob_start();
 system("sudo atq");
 $c = ob_get_contents();
 ob_end_clean();
-$queue = "<pre class='alert alert-info'>" . $c . "</pre>";
+$queue = "<pre class='alert alert-info'>";
+$ca = explode("\n", $c);
+foreach ($ca as $k=>$l) {
+    $jobId = trim(preg_replace("/^([0-9]*)\s*.*$/", "\${1}", $l));
+    if (intval($jobId) > 0) {
+        ob_start();
+        system("sudo at -c {$jobId}");
+        $jobCMD = ob_get_contents();
+        ob_end_clean();
+        $jobCMDa = explode("\n", $jobCMD);
+        $l = preg_replace("/\t/", "    ", $l);
+        $queue .= "{$l}\n";
+        for ($i=0; $i<strlen($l); $i++) {
+            $queue .= "-";
+        }
+        $queue .= "\n";
+        foreach ($jobCMDa as $k2=>$l2) {
+            if (preg_match("/^echo/", $l2)) {
+                $queue.= "{$l2}\n";
+            }
+        }
+        $queue .= "\n";
+    }
+}
+$queue .= "</pre>";
+// end: Builds queue list for UI
 
 $html = <<<eof
 <!DOCTYPE html>
