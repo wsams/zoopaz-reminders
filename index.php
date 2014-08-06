@@ -3,6 +3,8 @@ session_start();
 
 date_default_timezone_set($timezone);
 
+ob_start("ob_gzhandler");
+
 if (file_exists("config.php")) {
     require_once("config.php");
 } else {
@@ -73,14 +75,24 @@ foreach ($ca as $k=>$l) {
         ob_end_clean();
         $jobCMDa = explode("\n", $jobCMD);
         $l = preg_replace("/\t/", "    ", $l);
-        $queue .= "{$l}\n";
-        for ($i=0; $i<strlen($l); $i++) {
-            $queue .= "-";
-        }
-        $queue .= "\n";
+        $l = preg_replace("/([0-9]{2}:[0-9]{2}):[0-9]{2}/", "\${1}", $l);
+        $queue .= "<span class=\"at-time\">{$l}</span>\n";
+
+        // Uncomment to add a dashed line between at-time and at-message.
+        //for ($i=0; $i<strlen($l); $i++) {
+        //    $queue .= "-";
+        //}
+        //$queue .= "\n";
+
+        $stop = 0;
         foreach ($jobCMDa as $k2=>$l2) {
+            if ($stop > 0) {
+                break;
+            }
             if (preg_match("/^echo/", $l2)) {
-                $queue.= "{$l2}\n";
+                $l2 = preg_replace("/^.*echo \"\" \| mail -a \".*?\" -s \"(.*?)\".*$/", "\${1}", $l2);
+                $queue.= "<span class=\"at-message\">{$l2}</span>\n";
+                $stop++;
             }
         }
         $queue .= "\n";
@@ -108,6 +120,13 @@ $html = <<<eof
             .home {
                 max-width:600px;
             }    
+
+            .at-time {
+                font-weight:bold;
+            }
+
+            .at-message {
+            }
         </style>
     </head>
     <body>
@@ -158,4 +177,35 @@ $html = <<<eof
 </html>
 eof;
 
+function print_gzipped_page() {
+    global $HTTP_ACCEPT_ENCODING;
+    if (headers_sent()) {
+        $encoding = false;
+    } else if (strpos($HTTP_ACCEPT_ENCODING, 'x-gzip') !== false) {
+        $encoding = 'x-gzip';
+    } else if (strpos($HTTP_ACCEPT_ENCODING,'gzip') !== false) {
+        $encoding = 'gzip';
+    } else {
+        $encoding = false;
+    }
+
+    if ($encoding) {
+        $contents = ob_get_contents();
+        ob_end_clean();
+        header('Content-Encoding: '.$encoding);
+        print("\x1f\x8b\x08\x00\x00\x00\x00\x00");
+        $size = strlen($contents);
+        $contents = gzcompress($contents, 9);
+        $contents = substr($contents, 0, $size);
+        print($contents);
+        exit();
+    } else {
+        ob_end_flush();
+        exit();
+    }
+}
+
+ob_start();
+ob_implicit_flush(0);
 print($html);
+print_gzipped_page();
