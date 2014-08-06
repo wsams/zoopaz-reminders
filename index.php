@@ -119,6 +119,7 @@ $html = <<<eof
         <style type="text/css">
             .home {
                 max-width:600px;
+                margin-bottom:64px;
             }    
 
             .at-time {
