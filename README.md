@@ -14,6 +14,8 @@ Add similar lines to `/etc/sudoers` so that your webserver user can execute the 
     ALL ALL=NOPASSWD: /usr/bin/at
     ALL ALL=NOPASSWD: /usr/bin/atq
     ALL ALL=NOPASSWD: /usr/bin/atrm
+    
+Future versions will use `/etc/at.allow`.
 
 2
 -
