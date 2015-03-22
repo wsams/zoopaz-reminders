@@ -3,7 +3,6 @@ session_start();
 
 date_default_timezone_set($timezone);
 
-ob_start("ob_gzhandler");
 
 if (file_exists("config.php")) {
     require_once("config.php");
@@ -46,6 +45,8 @@ if ($_GET['a'] == "remove") {
     exit();
 }
 
+ob_start("ob_gzhandler");
+
 $curdate = date("Y-m-d");
 $curtime = date("H:i", strtotime("+1 hour")) . ":AM/PM";
 
@@ -59,21 +60,26 @@ eof;
 
 // start: Builds queue list for UI
 $jobIDs = array();
+
 ob_start();
 system("sudo atq");
 $c = ob_get_contents();
 ob_end_clean();
-$queue = "<pre class='alert alert-info'>";
+
+$queue = "<pre id='at-queue' class='alert alert-info'>";
 $ca = explode("\n", $c);
+
 foreach ($ca as $k=>$l) {
     $jobId = trim(preg_replace("/^([0-9]*)\s*.*$/", "\${1}", $l));
     if (intval($jobId) > 0) {
         $jobIDs[] = $jobId;
+
         ob_start();
         system("sudo at -c {$jobId}");
         $jobCMD = ob_get_contents();
         ob_end_clean();
         $jobCMDa = explode("\n", $jobCMD);
+
         $l = preg_replace("/\t/", "    ", $l);
         $l = preg_replace("/([0-9]{2}:[0-9]{2}):[0-9]{2}/", "\${1}", $l);
         $queue .= "<span class=\"at-time\">{$l}</span>\n";
@@ -128,6 +134,11 @@ $html = <<<eof
 
             .at-message {
             }
+
+            #at-queue {
+                max-height:256px;
+                overflow:auto;
+            }
         </style>
     </head>
     <body>
@@ -164,9 +175,12 @@ $html = <<<eof
             </form>
         </div>
         <script src="cdn/js/jquery/1.10.2/jquery-1.10.2.min.js"></script>
+        <script src="cdn/js/fastclick.min.js"></script>
         <script src="cdn/js/bootstrap/3.0.0/js/bootstrap.min.js"></script>
         <script src="cdn/js/siamnet/default.js"></script>
         <script type="text/javascript">
+            FastClick.attach(document.body);
+
             function random(min, max) {
                 return Math.round(Math.random() * (max - min) + min);
             }
