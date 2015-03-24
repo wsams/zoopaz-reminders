@@ -66,50 +66,71 @@ system("sudo atq");
 $c = ob_get_contents();
 ob_end_clean();
 
-$queue = "<pre id='at-queue' class='alert alert-info'>";
-$ca = explode("\n", $c);
+if (strlen($c) > 0) {
+    $queue = <<<eof
+<h4>Job Queue</h4>
+<p>Job ID is the integer in the first column below.</p>
+<pre id='at-queue' class='alert alert-info'>
+eof;
+    $ca = explode("\n", $c);
 
-foreach ($ca as $k=>$l) {
-    $jobId = trim(preg_replace("/^([0-9]*)\s*.*$/", "\${1}", $l));
-    if (intval($jobId) > 0) {
-        $jobIDs[] = $jobId;
+    foreach ($ca as $k=>$l) {
+        $jobId = trim(preg_replace("/^([0-9]*)\s*.*$/", "\${1}", $l));
+        if (intval($jobId) > 0) {
+            $jobIDs[] = $jobId;
 
-        ob_start();
-        system("sudo at -c {$jobId}");
-        $jobCMD = ob_get_contents();
-        ob_end_clean();
-        $jobCMDa = explode("\n", $jobCMD);
+            ob_start();
+            system("sudo at -c {$jobId}");
+            $jobCMD = ob_get_contents();
+            ob_end_clean();
+            $jobCMDa = explode("\n", $jobCMD);
 
-        $l = preg_replace("/\t/", "    ", $l);
-        $l = preg_replace("/([0-9]{2}:[0-9]{2}):[0-9]{2}/", "\${1}", $l);
-        $queue .= "<span class=\"at-time\">{$l}</span>\n";
+            $l = preg_replace("/\t/", "    ", $l);
+            $l = preg_replace("/([0-9]{2}:[0-9]{2}):[0-9]{2}/", "\${1}", $l);
+            $queue .= "<span class=\"at-time\">{$l}</span>\n";
 
-        // Uncomment to add a dashed line between at-time and at-message.
-        //for ($i=0; $i<strlen($l); $i++) {
-        //    $queue .= "-";
-        //}
-        //$queue .= "\n";
+            // Uncomment to add a dashed line between at-time and at-message.
+            //for ($i=0; $i<strlen($l); $i++) {
+            //    $queue .= "-";
+            //}
+            //$queue .= "\n";
 
-        $stop = 0;
-        foreach ($jobCMDa as $k2=>$l2) {
-            if ($stop > 0) {
-                break;
+            $stop = 0;
+            foreach ($jobCMDa as $k2=>$l2) {
+                if ($stop > 0) {
+                    break;
+                }
+                if (preg_match("/^echo/", $l2)) {
+                    $l2 = preg_replace("/^.*echo \"\" \| mail -a \".*?\" -s \"(.*?)\".*$/", "\${1}", $l2);
+                    $queue.= "<span class=\"at-message\">{$l2}</span>\n";
+                    $stop++;
+                }
             }
-            if (preg_match("/^echo/", $l2)) {
-                $l2 = preg_replace("/^.*echo \"\" \| mail -a \".*?\" -s \"(.*?)\".*$/", "\${1}", $l2);
-                $queue.= "<span class=\"at-message\">{$l2}</span>\n";
-                $stop++;
-            }
+            $queue .= "\n";
         }
-        $queue .= "\n";
     }
+    $queue .= "</pre>";
 }
-$queue .= "</pre>";
 // end: Builds queue list for UI
 
-$options = "";
-foreach ($jobIDs as $id) {
-    $options .= "<option value=\"{$id}\">{$id}</option>";
+$removeJobForm = "";
+if (count($jobIDs) > 0) {
+    $options = "";
+    foreach ($jobIDs as $id) {
+        $options .= "<option value=\"{$id}\">{$id}</option>";
+    }
+    $removeJobForm = <<<eof
+<form role="form" method="get" action="{$_SERVER['PHP_SELF']}">
+    <h4>Remove Job</h4>
+    <input type="hidden" name="a" value="remove" />
+    <div class="form-group">
+        <select id="atid" name="atid" class="form-control">
+            {$options}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Remove</button>
+</form>
+eof;
 }
 
 $html = <<<eof
@@ -160,19 +181,8 @@ $html = <<<eof
             </form>
             <br />
             {$out}
-            <h4>Job Queue</h4>
-            <p>Job ID is the integer in the first column below.</p>
             {$queue}
-            <form role="form" method="get" action="{$_SERVER['PHP_SELF']}">
-                <h4>Remove Job</h4>
-                <input type="hidden" name="a" value="remove" />
-                <div class="form-group">
-                    <select id="atid" name="atid" class="form-control">
-                        {$options}
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Remove</button>
-            </form>
+            {$removeJobForm}
         </div>
         <script src="cdn/js/jquery/1.10.2/jquery-1.10.2.min.js"></script>
         <script src="cdn/js/fastclick.min.js"></script>
