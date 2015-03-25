@@ -194,10 +194,8 @@ $html = <<<eof
             function random(min, max) {
                 return Math.round(Math.random() * (max - min) + min);
             }
-
-            $(document).ready(function() {
-            });
         </script>
+        <script src="cdn/js/iframe-helper.js"></script>
     </body>
 </html>
 eof;
