@@ -1,14 +1,13 @@
 <?php
 session_start();
 
-date_default_timezone_set($timezone);
-
-
 if (file_exists("config.php")) {
     require_once("config.php");
 } else {
     die("Copy <code>example.config.php</code> to <code>config.php</code> and email addresses to the \$emails array.");
 }
+
+date_default_timezone_set($timezone);
 
 if (!file_exists("jobs")) {
     mkdir("jobs");
